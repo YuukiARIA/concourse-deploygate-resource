@@ -20,9 +20,14 @@ type Source struct {
 }
 
 type Params struct {
-	File        string `json:"file"`
-	Message     string `json:"message"`
-	MessageFile string `json:"message_file"`
+	File             string `json:"file"`
+	Message          string `json:"message"`
+	MessageFile      string `json:"message_file"`
+	ReleaseNote      string `json:"release_note"`
+	DistributionKey  string `json:"distribution_key"`
+	DistributionName string `json:"distribution_name"`
+	DisableNotify    bool   `json:"disable_notify"`
+	Visibility       string `json:"visibility"`
 }
 
 type Request struct {
@@ -49,25 +54,27 @@ func readMessageFromFile(filePath string) (string, error) {
 }
 
 func dg(request *Request) *deploygate.Response {
-	message := request.Params.Message
-	if request.Params.MessageFile != "" {
+	source, params := request.Source, request.Params
+
+	message := params.Message
+	if params.MessageFile != "" {
 		var err error
-		message, err = readMessageFromFile(request.Params.MessageFile)
+		message, err = readMessageFromFile(params.MessageFile)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
 	return deploygate.Upload(
-		request.Source.ApiKey,
-		request.Source.Owner,
-		request.Params.File,
+		source.ApiKey,
+		source.Owner,
+		params.File,
 		message,
-		"",
-		"",
-		"",
-		nil,
-		"",
+		params.DistributionKey,
+		params.DistributionName,
+		params.ReleaseNote,
+		params.DisableNotify,
+		params.Visibility,
 	)
 }
 

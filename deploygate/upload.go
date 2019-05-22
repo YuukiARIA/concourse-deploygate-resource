@@ -10,14 +10,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 func (r *Response) IsSuccess() bool {
 	return r.SuccessResponse != nil
 }
 
-func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) *Response {
+func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) *Response {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
 	body, contentType, err := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
@@ -42,7 +41,7 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 	return parseResponse(res)
 }
 
-func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) (io.Reader, string, error) {
+func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (io.Reader, string, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 
@@ -70,8 +69,8 @@ func buildRequestBody(filePath, message, distributionKey, distributionName, rele
 			return nil, "", err
 		}
 	}
-	if disableNotify != nil {
-		if err := appendFormField(writer, "disableNotify", strconv.FormatBool(*disableNotify)); err != nil {
+	if disableNotify {
+		if err := appendFormField(writer, "disableNotify", "yes"); err != nil {
 			return nil, "", err
 		}
 	}
