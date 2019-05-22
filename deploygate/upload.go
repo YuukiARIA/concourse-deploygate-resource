@@ -20,6 +20,26 @@ func (r *Response) IsSuccess() bool {
 func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) *Response {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
+	body, contentType := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
+
+	req, err := http.NewRequest("POST", endPointUrl, body)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("Authorization", token)
+	req.Header.Set("Content-Type", contentType)
+
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer res.Body.Close()
+
+	return parseResponse(res)
+}
+
+func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) (io.Reader, string) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 
@@ -46,18 +66,7 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 
 	writer.Close()
 
-	req, _ := http.NewRequest("POST", endPointUrl, buffer)
-	req.Header.Set("Authorization", token)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	client := &http.Client{}
-	res, err := client.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer res.Body.Close()
-
-	return parseResponse(res)
+	return buffer, writer.FormDataContentType()
 }
 
 func parseResponse(httpResponse *http.Response) *Response {
