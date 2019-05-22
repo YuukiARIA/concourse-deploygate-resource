@@ -2,9 +2,9 @@ package deploygate
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -13,10 +13,38 @@ import (
 	"strconv"
 )
 
-type Response struct {
+type Results struct {
+	Name        string `json:"name"`
+	PackageName string `json:"package_name"`
+	OSName      string `json:"os_name"`
+	Path        string `json:"path"`
+	Revision    int    `json:"revision"`
+	VersionCode int    `json:"version_code"`
+	VersionName string `json:"version_name"`
+	Message     string `json:"message"`
 }
 
-func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) {
+type ErrorResponse struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message"`
+	Because string `json:"because"`
+}
+
+type SuccessResponse struct {
+	Error   bool    `json:"error"`
+	Results Results `json:"results"`
+}
+
+type Response struct {
+	SuccessResponse *SuccessResponse
+	ErrorResponse   *ErrorResponse
+}
+
+func (r *Response) IsSuccess() bool {
+	return r.SuccessResponse != nil
+}
+
+func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) *Response {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
 	buffer := &bytes.Buffer{}
@@ -56,8 +84,25 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 	}
 	defer res.Body.Close()
 
-	body, _ := ioutil.ReadAll(res.Body)
-	fmt.Fprintln(os.Stderr, "response: "+string(body))
+	return parseResponse(res)
+}
+
+func parseResponse(httpResponse *http.Response) *Response {
+	decoder := json.NewDecoder(httpResponse.Body)
+	response := &Response{}
+
+	switch httpResponse.StatusCode {
+	case http.StatusOK:
+		response.SuccessResponse = &SuccessResponse{}
+		decoder.Decode(response.SuccessResponse)
+	case http.StatusBadRequest:
+		response.ErrorResponse = &ErrorResponse{}
+		decoder.Decode(response.ErrorResponse)
+	default:
+		fmt.Fprintf(os.Stderr, "unsupported status: %s\n", httpResponse.Status)
+	}
+
+	return response
 }
 
 func appendFormFile(mpart *multipart.Writer, fieldName, filePath string) {

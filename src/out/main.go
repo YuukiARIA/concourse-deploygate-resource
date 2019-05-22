@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/YuukiARIA/concourse-deploygate-resource/deploygate"
 )
@@ -37,8 +38,8 @@ type Response struct {
 	Metadata []MetadataEntry `json:"metadata"`
 }
 
-func dg(request *Request) {
-	deploygate.Upload(
+func dg(request *Request) *deploygate.Response {
+	return deploygate.Upload(
 		request.Source.ApiKey,
 		request.Source.Owner,
 		request.Params.File,
@@ -62,12 +63,19 @@ func main() {
 	request := Request{}
 	json.NewDecoder(os.Stdin).Decode(&request)
 
-	dg(&request)
+	dgResponse := dg(&request)
+	if !dgResponse.IsSuccess() {
+		fmt.Fprintf(os.Stderr, "error message=%s, because=%s\n", dgResponse.ErrorResponse.Message, dgResponse.ErrorResponse.Because)
+		os.Exit(1)
+	}
+
+	success := dgResponse.SuccessResponse
 
 	response := Response{
 		Version: Version{},
 		Metadata: []MetadataEntry{
-			MetadataEntry{Name: "message", Value: request.Params.Message},
+			MetadataEntry{Name: "revision", Value: strconv.Itoa(success.Results.Revision)},
+			MetadataEntry{Name: "url", Value: "https://deploygate.com" + success.Results.Path},
 		},
 	}
 	json.NewEncoder(os.Stdout).Encode(response)
