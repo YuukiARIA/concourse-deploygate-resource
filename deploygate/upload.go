@@ -106,7 +106,6 @@ func parseResponse(httpResponse *http.Response) *Response {
 }
 
 func appendFormFile(mpart *multipart.Writer, fieldName, filePath string) {
-	fmt.Fprintln(os.Stderr, "filepath: "+filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Fatal(err)
