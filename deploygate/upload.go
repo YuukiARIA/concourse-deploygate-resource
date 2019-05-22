@@ -20,7 +20,10 @@ func (r *Response) IsSuccess() bool {
 func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) *Response {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
-	body, contentType := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
+	body, contentType, err := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	req, err := http.NewRequest("POST", endPointUrl, body)
 	if err != nil {
@@ -39,34 +42,48 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 	return parseResponse(res)
 }
 
-func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) (io.Reader, string) {
+func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify *bool, visibility string) (io.Reader, string, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 
-	appendFormFile(writer, "file", filePath)
+	if err := appendFormFile(writer, "file", filePath); err != nil {
+		return nil, "", err
+	}
 
 	if message != "" {
-		appendFormField(writer, "message", message)
+		if err := appendFormField(writer, "message", message); err != nil {
+			return nil, "", err
+		}
 	}
 	if distributionKey != "" {
-		appendFormField(writer, "distribution_key", distributionKey)
+		if err := appendFormField(writer, "distribution_key", distributionKey); err != nil {
+			return nil, "", err
+		}
 	}
 	if distributionName != "" {
-		appendFormField(writer, "distribution_name", distributionName)
+		if err := appendFormField(writer, "distribution_name", distributionName); err != nil {
+			return nil, "", err
+		}
 	}
 	if releaseNote != "" {
-		appendFormField(writer, "release_note", releaseNote)
+		if err := appendFormField(writer, "release_note", releaseNote); err != nil {
+			return nil, "", err
+		}
 	}
 	if disableNotify != nil {
-		appendFormField(writer, "disableNotify", strconv.FormatBool(*disableNotify))
+		if err := appendFormField(writer, "disableNotify", strconv.FormatBool(*disableNotify)); err != nil {
+			return nil, "", err
+		}
 	}
 	if visibility != "" {
-		appendFormField(writer, "visibility", visibility)
+		if err := appendFormField(writer, "visibility", visibility); err != nil {
+			return nil, "", err
+		}
 	}
 
 	writer.Close()
 
-	return buffer, writer.FormDataContentType()
+	return buffer, writer.FormDataContentType(), nil
 }
 
 func parseResponse(httpResponse *http.Response) *Response {
@@ -88,30 +105,33 @@ func parseResponse(httpResponse *http.Response) *Response {
 	return response
 }
 
-func appendFormFile(mpart *multipart.Writer, fieldName, filePath string) {
+func appendFormFile(mpart *multipart.Writer, fieldName, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer file.Close()
 
 	fileName := filepath.Base(filePath)
 	fileWriter, err := mpart.CreateFormFile(fieldName, fileName)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if _, err := io.Copy(fileWriter, file); err != nil {
-		log.Fatal(err)
+		return err
 	}
+
+	return nil
 }
 
-func appendFormField(mpart *multipart.Writer, fieldName string, content string) {
+func appendFormField(mpart *multipart.Writer, fieldName string, content string) error {
 	fieldWriter, err := mpart.CreateFormField(fieldName)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if _, err := fieldWriter.Write([]byte(content)); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
