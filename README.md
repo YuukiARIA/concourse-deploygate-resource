@@ -82,3 +82,7 @@ jobs:
           file: builds/myapp.apk
           message_file: message/message.txt
 ```
+
+## License
+
+This sofware is released under the MIT License, see [LICENSE](https://github.com/YuukiARIA/concourse-deploygate-resource/blob/master/LICENSE).
