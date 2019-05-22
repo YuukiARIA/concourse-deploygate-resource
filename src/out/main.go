@@ -69,13 +69,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	success := dgResponse.SuccessResponse
+	results := dgResponse.SuccessResponse.Results
 
 	response := Response{
 		Version: Version{},
 		Metadata: []MetadataEntry{
-			MetadataEntry{Name: "revision", Value: strconv.Itoa(success.Results.Revision)},
-			MetadataEntry{Name: "url", Value: "https://deploygate.com" + success.Results.Path},
+			MetadataEntry{Name: "name", Value: results.Name},
+			MetadataEntry{Name: "package", Value: results.PackageName},
+			MetadataEntry{Name: "platform", Value: results.OSName},
+			MetadataEntry{Name: "revision", Value: strconv.Itoa(results.Revision)},
+			MetadataEntry{Name: "version_code", Value: strconv.Itoa(results.VersionCode)},
+			MetadataEntry{Name: "version_name", Value: results.VersionName},
+			MetadataEntry{Name: "url", Value: "https://deploygate.com" + results.Path},
+			MetadataEntry{Name: "message", Value: results.Message},
 		},
 	}
 	json.NewEncoder(os.Stdout).Encode(response)
