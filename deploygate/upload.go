@@ -64,15 +64,16 @@ func parseResponse(httpResponse *http.Response) *Response {
 	decoder := json.NewDecoder(httpResponse.Body)
 	response := &Response{}
 
-	switch httpResponse.StatusCode {
-	case http.StatusOK:
+	switch {
+	case httpResponse.StatusCode == http.StatusOK:
 		response.SuccessResponse = &SuccessResponse{}
 		decoder.Decode(response.SuccessResponse)
-	case http.StatusBadRequest:
+	case 400 <= httpResponse.StatusCode && httpResponse.StatusCode < 500:
+		fmt.Fprintln(os.Stderr, httpResponse.Status)
 		response.ErrorResponse = &ErrorResponse{}
 		decoder.Decode(response.ErrorResponse)
 	default:
-		fmt.Fprintf(os.Stderr, "unsupported status: %s\n", httpResponse.Status)
+		fmt.Fprintln(os.Stderr, httpResponse.Status)
 	}
 
 	return response
