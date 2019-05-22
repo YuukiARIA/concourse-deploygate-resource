@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 
@@ -38,12 +40,29 @@ type Response struct {
 	Metadata []MetadataEntry `json:"metadata"`
 }
 
+func readMessageFromFile(filePath string) (string, error) {
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
 func dg(request *Request) *deploygate.Response {
+	message := request.Params.Message
+	if request.Params.MessageFile != "" {
+		var err error
+		message, err = readMessageFromFile(request.Params.MessageFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
 	return deploygate.Upload(
 		request.Source.ApiKey,
 		request.Source.Owner,
 		request.Params.File,
-		request.Params.Message,
+		message,
 		"",
 		"",
 		"",
