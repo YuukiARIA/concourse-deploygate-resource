@@ -109,14 +109,14 @@ func main() {
 	response := Response{
 		Version: Version{},
 		Metadata: []MetadataEntry{
-			MetadataEntry{Name: "name", Value: results.Name},
-			MetadataEntry{Name: "package", Value: results.PackageName},
-			MetadataEntry{Name: "platform", Value: results.OSName},
-			MetadataEntry{Name: "revision", Value: strconv.Itoa(results.Revision)},
-			MetadataEntry{Name: "version_code", Value: strconv.Itoa(results.VersionCode)},
-			MetadataEntry{Name: "version_name", Value: results.VersionName},
-			MetadataEntry{Name: "url", Value: "https://deploygate.com" + results.Path},
-			MetadataEntry{Name: "message", Value: results.Message},
+			{Name: "name", Value: results.Name},
+			{Name: "package", Value: results.PackageName},
+			{Name: "platform", Value: results.OSName},
+			{Name: "revision", Value: strconv.Itoa(results.Revision)},
+			{Name: "version_code", Value: strconv.Itoa(results.VersionCode)},
+			{Name: "version_name", Value: results.VersionName},
+			{Name: "url", Value: "https://deploygate.com" + results.Path},
+			{Name: "message", Value: results.Message},
 		},
 	}
 	json.NewEncoder(os.Stdout).Encode(response)
