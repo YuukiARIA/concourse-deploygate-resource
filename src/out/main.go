@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"strconv"
 
@@ -53,7 +52,7 @@ func readMessageFromFile(filePath string) (string, error) {
 	return string(content), nil
 }
 
-func dg(request *Request) *deploygate.Response {
+func dg(request *Request) (*deploygate.Response, error) {
 	source, params := request.Source, request.Params
 
 	message := params.Message
@@ -61,11 +60,11 @@ func dg(request *Request) *deploygate.Response {
 		var err error
 		message, err = readMessageFromFile(params.MessageFile)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 	}
 
-	return deploygate.Upload(
+	dgResponse, err := deploygate.Upload(
 		source.ApiKey,
 		source.Owner,
 		params.File,
@@ -76,22 +75,32 @@ func dg(request *Request) *deploygate.Response {
 		params.DisableNotify,
 		params.Visibility,
 	)
+	if err != nil {
+		return nil, err
+	}
+	return dgResponse, nil
 }
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "error: source directory not given")
+		fmt.Fprintln(os.Stderr, "Fatal: source directory not given")
 		os.Exit(1)
 	}
 
 	os.Chdir(os.Args[1])
 
 	request := Request{}
-	json.NewDecoder(os.Stdin).Decode(&request)
+	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal: %s\n", err)
+		os.Exit(1)
+	}
 
-	dgResponse := dg(&request)
-	if dgResponse.Error {
-		fmt.Fprintf(os.Stderr, "error message=%s, because=%s\n", dgResponse.Message, dgResponse.Because)
+	dgResponse, err := dg(&request)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal: %s\n", err)
+		os.Exit(1)
+	} else if dgResponse.Error {
+		fmt.Fprintf(os.Stderr, "Error: %s (%s)\n", dgResponse.Message, dgResponse.Because)
 		os.Exit(1)
 	}
 

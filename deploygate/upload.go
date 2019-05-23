@@ -5,24 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 )
 
-func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) *Response {
+func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*Response, error) {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
 	body, contentType, err := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	req, err := http.NewRequest("POST", endPointUrl, body)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	req.Header.Set("Authorization", token)
 	req.Header.Set("Content-Type", contentType)
@@ -30,7 +29,7 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer res.Body.Close()
 
@@ -81,10 +80,12 @@ func buildRequestBody(filePath, message, distributionKey, distributionName, rele
 	return buffer, writer.FormDataContentType(), nil
 }
 
-func parseResponse(httpResponse *http.Response) *Response {
+func parseResponse(httpResponse *http.Response) (*Response, error) {
 	response := &Response{}
-	json.NewDecoder(httpResponse.Body).Decode(response)
-	return response
+	if err := json.NewDecoder(httpResponse.Body).Decode(response); err != nil {
+		return nil, err
+	}
+	return response, nil
 }
 
 func appendFormFile(mpart *multipart.Writer, fieldName, filePath string) error {
