@@ -90,12 +90,12 @@ func main() {
 	json.NewDecoder(os.Stdin).Decode(&request)
 
 	dgResponse := dg(&request)
-	if !dgResponse.IsSuccess() {
-		fmt.Fprintf(os.Stderr, "error message=%s, because=%s\n", dgResponse.ErrorResponse.Message, dgResponse.ErrorResponse.Because)
+	if dgResponse.Error {
+		fmt.Fprintf(os.Stderr, "error message=%s, because=%s\n", dgResponse.Message, dgResponse.Because)
 		os.Exit(1)
 	}
 
-	results := dgResponse.SuccessResponse.Results
+	results := dgResponse.Results
 
 	response := Response{
 		Version: Version{},

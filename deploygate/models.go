@@ -11,18 +11,13 @@ type Results struct {
 	Message     string `json:"message"`
 }
 
-type ErrorResponse struct {
-	Error   bool   `json:"error"`
+type Response struct {
+	Error bool `json:"error"`
+
+	// Success
+	Results Results `json:"results"`
+
+	// Error
 	Message string `json:"message"`
 	Because string `json:"because"`
-}
-
-type SuccessResponse struct {
-	Error   bool    `json:"error"`
-	Results Results `json:"results"`
-}
-
-type Response struct {
-	SuccessResponse *SuccessResponse
-	ErrorResponse   *ErrorResponse
 }

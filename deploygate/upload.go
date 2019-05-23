@@ -12,10 +12,6 @@ import (
 	"path/filepath"
 )
 
-func (r *Response) IsSuccess() bool {
-	return r.SuccessResponse != nil
-}
-
 func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) *Response {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
@@ -86,21 +82,8 @@ func buildRequestBody(filePath, message, distributionKey, distributionName, rele
 }
 
 func parseResponse(httpResponse *http.Response) *Response {
-	decoder := json.NewDecoder(httpResponse.Body)
 	response := &Response{}
-
-	switch {
-	case httpResponse.StatusCode == http.StatusOK:
-		response.SuccessResponse = &SuccessResponse{}
-		decoder.Decode(response.SuccessResponse)
-	case 400 <= httpResponse.StatusCode && httpResponse.StatusCode < 500:
-		fmt.Fprintln(os.Stderr, httpResponse.Status)
-		response.ErrorResponse = &ErrorResponse{}
-		decoder.Decode(response.ErrorResponse)
-	default:
-		fmt.Fprintln(os.Stderr, httpResponse.Status)
-	}
-
+	json.NewDecoder(httpResponse.Body).Decode(response)
 	return response
 }
 
