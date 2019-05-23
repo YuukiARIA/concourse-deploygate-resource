@@ -64,8 +64,8 @@ func dg(request *Request) (*deploygate.Response, error) {
 		}
 	}
 
-	dgResponse, err := deploygate.Upload(
-		source.ApiKey,
+	dgClient := deploygate.NewClient(source.ApiKey)
+	dgResponse, err := dgClient.Upload(
 		source.Owner,
 		params.File,
 		message,

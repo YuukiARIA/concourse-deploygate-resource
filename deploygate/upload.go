@@ -11,7 +11,15 @@ import (
 	"path/filepath"
 )
 
-func Upload(token, userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*Response, error) {
+type Client struct {
+	ApiKey string
+}
+
+func NewClient(apiKey string) *Client {
+	return &Client{ApiKey: apiKey}
+}
+
+func (c *Client) Upload(userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*Response, error) {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
 	body, contentType, err := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
@@ -19,12 +27,10 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", endPointUrl, body)
+	req, err := c.buildRequest(endPointUrl, body, contentType)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", token)
-	req.Header.Set("Content-Type", contentType)
 
 	client := &http.Client{}
 	res, err := client.Do(req)
@@ -34,6 +40,16 @@ func Upload(token, userName, filePath, message, distributionKey, distributionNam
 	defer res.Body.Close()
 
 	return parseResponse(res)
+}
+
+func (c *Client) buildRequest(url string, body io.Reader, contentType string) (*http.Request, error) {
+	req, err := http.NewRequest("POST", url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", c.ApiKey)
+	req.Header.Set("Content-Type", contentType)
+	return req, nil
 }
 
 func buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (io.Reader, string, error) {
