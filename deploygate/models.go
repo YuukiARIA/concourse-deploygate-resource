@@ -6,7 +6,7 @@ type Results struct {
 	OSName      string `json:"os_name"`
 	Path        string `json:"path"`
 	Revision    int    `json:"revision"`
-	VersionCode int    `json:"version_code"`
+	VersionCode string `json:"version_code"`
 	VersionName string `json:"version_name"`
 	Message     string `json:"message"`
 }

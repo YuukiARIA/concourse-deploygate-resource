@@ -113,7 +113,7 @@ func main() {
 			{Name: "package", Value: results.PackageName},
 			{Name: "platform", Value: results.OSName},
 			{Name: "revision", Value: strconv.Itoa(results.Revision)},
-			{Name: "version_code", Value: strconv.Itoa(results.VersionCode)},
+			{Name: "version_code", Value: results.VersionCode},
 			{Name: "version_name", Value: results.VersionName},
 			{Name: "url", Value: "https://deploygate.com" + results.Path},
 			{Name: "message", Value: results.Message},
