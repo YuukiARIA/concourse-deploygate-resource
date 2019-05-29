@@ -6,6 +6,9 @@ type Source struct {
 }
 
 type Version struct {
+	Platform    string `json:"platform"`
+	PackageName string `json:"package_name"`
+	Revision    string `json:"revision"`
 }
 
 type PutParams struct {

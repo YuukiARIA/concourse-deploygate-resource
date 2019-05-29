@@ -74,7 +74,11 @@ func main() {
 	results := dgResponse.Results
 
 	response := models.PutResponse{
-		Version: models.Version{},
+		Version: models.Version{
+			Platform:    results.OSName,
+			PackageName: results.PackageName,
+			Revision:    strconv.Itoa(results.Revision),
+		},
 		Metadata: []models.MetadataEntry{
 			{Name: "name", Value: results.Name},
 			{Name: "package", Value: results.PackageName},
