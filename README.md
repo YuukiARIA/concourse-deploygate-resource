@@ -17,8 +17,8 @@ Gets *versions* of applications belonging to configured organization.
 
 *Versions* are identified by following attributes:
 
-- `platform`: Either Android or iOS.
-- `package_name`: Sush as `com.company.appname`.
+- `platform`: Either `Android` or `iOS`.
+- `package_name`: The unique identifier of the application sush as `com.company.appname`.
 - `revision`: Number of revision on DeployGate.
 
 ### `in`: Get app metadata.
