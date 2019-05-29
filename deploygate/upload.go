@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 )
 
-func (c *Client) Upload(userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*Response, error) {
+func (c *Client) Upload(userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*UploadResponse, error) {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
 	body, contentType, err := buildRequestBody(filePath, message, distributionKey, distributionName, releaseNote, disableNotify, visibility)
@@ -88,8 +88,8 @@ func buildRequestBody(filePath, message, distributionKey, distributionName, rele
 	return buffer, writer.FormDataContentType(), nil
 }
 
-func parseResponse(httpResponse *http.Response) (*Response, error) {
-	response := &Response{}
+func parseResponse(httpResponse *http.Response) (*UploadResponse, error) {
+	response := &UploadResponse{}
 	if err := json.NewDecoder(httpResponse.Body).Decode(response); err != nil {
 		return nil, err
 	}

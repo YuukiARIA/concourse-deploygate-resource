@@ -1,5 +1,26 @@
 package deploygate
 
+type ResponseBase struct {
+	Error   bool   `json:"error"`
+	Message string `json:"message,omitempty"`
+	Because string `json:"because,omitempty"`
+}
+
+type UploadResponse struct {
+	ResponseBase
+	Results Results `json:"results"`
+}
+
+type GetAppsResponse struct {
+	ResponseBase
+	Apps []App `json:"applications"`
+}
+
+type GetAppResponse struct {
+	ResponseBase
+	App App `json:"application"`
+}
+
 type Results struct {
 	Name        string `json:"name"`
 	PackageName string `json:"package_name"`
@@ -9,17 +30,6 @@ type Results struct {
 	VersionCode string `json:"version_code"`
 	VersionName string `json:"version_name"`
 	Message     string `json:"message"`
-}
-
-type Response struct {
-	Error bool `json:"error"`
-
-	// Success
-	Results Results `json:"results"`
-
-	// Error
-	Message string `json:"message"`
-	Because string `json:"because"`
 }
 
 type App struct {

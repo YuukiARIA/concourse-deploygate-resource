@@ -6,22 +6,6 @@ import (
 	"net/http"
 )
 
-type ResponseBase struct {
-	Error   bool   `json:"error"`
-	Message string `json:"message,omitempty"`
-	Because string `json:"because,omitempty"`
-}
-
-type GetAppsResponse struct {
-	ResponseBase
-	Apps []App `json:"applications"`
-}
-
-type GetAppResponse struct {
-	ResponseBase
-	App App `json:"application"`
-}
-
 func (c *Client) GetApps(organization string) (*GetAppsResponse, error) {
 	url := fmt.Sprintf("https://deploygate.com/api/organizations/%s/apps", organization)
 	req, err := http.NewRequest("GET", url, nil)

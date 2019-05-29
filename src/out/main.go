@@ -19,7 +19,7 @@ func readMessageFromFile(filePath string) (string, error) {
 	return string(content), nil
 }
 
-func dg(request *models.PutRequest) (*deploygate.Response, error) {
+func dg(request *models.PutRequest) (*deploygate.UploadResponse, error) {
 	source, params := request.Source, request.Params
 
 	message := params.Message
