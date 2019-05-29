@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/YuukiARIA/concourse-deploygate-resource)](https://goreportcard.com/report/github.com/YuukiARIA/concourse-deploygate-resource)
 
-This is a write-only resource that enables to upload IPA/APK packages to DeployGate.
+This is a write-only resource that enables to upload IPA/APK packages to [DeployGate](https://deploygate.com/).
 
 ## Source Configuration
 
@@ -10,6 +10,53 @@ This is a write-only resource that enables to upload IPA/APK packages to DeployG
 - `owner` (string): __*Required.*__ User name or group name.
 
 ## Behaviour
+
+### `check`: Check for new revisions of apps.
+
+Gets *versions* of applications belonging to configured organization.
+
+*Versions* are identified by following attributes:
+
+- `platform`: Either Android or iOS.
+- `package_name`: Sush as `com.company.appname`.
+- `revision`: Number of revision on DeployGate.
+
+### `in`: Get app metadata.
+
+Gets the single app metadata specified by `platform` and `package_name` and emits the data to *metadata.json*.
+
+Below is an example.
+
+<details>
+<summary>metadata.json</summary>
+
+```json
+{
+  "name": "My App",
+  "package_name": "com.mycompany.myapp",
+  "labels": {},
+  "os_name": "Android",
+  "current_revision": 16,
+  "url": "https://deploygate.com/organizations/MyOrg/platforms/Android/apps/com.mycompany.myapp",
+  "icon_url": "...",
+  "owner": {
+    "type": "Organization",
+    "name": "MyOrg",
+    "description": "My organization",
+    "url": "https://deploygate.com/organizations/MyOrg",
+    "enterprise": {
+      "type": "Enterprise",
+      "name": "mycompanyspace",
+      "display_name": "My Company",
+      "url": "https://deploygate.com/enterprises/mycompanyspace",
+      "icon_url": "..."
+    }
+  }
+}
+```
+</details>
+
+Note that currently there is no functionality to download applications themselves (IPA/APK files).
 
 ### `out`: Push an app to DeployGate.
 
