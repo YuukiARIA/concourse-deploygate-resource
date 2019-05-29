@@ -21,3 +21,32 @@ type Response struct {
 	Message string `json:"message"`
 	Because string `json:"because"`
 }
+
+type App struct {
+	Name            string    `json:"name"`
+	PackageName     string    `json:"package_name"`
+	Labels          AppLabels `json:"labels"`
+	OSName          string    `json:"os_name"`
+	CurrentRevision int       `json:"current_revision"`
+	URL             string    `json:"url"`
+	IconURL         string    `json:"icon_url"`
+	Owner           Owner     `json:"owner"`
+}
+
+type AppLabels map[string]string
+
+type Owner struct {
+	Type        string     `json:"type"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	URL         string     `json:"url"`
+	Enterprise  Enterprise `json:"enterprise"`
+}
+
+type Enterprise struct {
+	Type        string `json:"type"`
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+	URL         string `json:"url"`
+	IconURL     string `json:"icon_url"`
+}
