@@ -8,41 +8,8 @@ import (
 	"strconv"
 
 	"github.com/YuukiARIA/concourse-deploygate-resource/deploygate"
+	"github.com/YuukiARIA/concourse-deploygate-resource/models"
 )
-
-type Version struct {
-}
-
-type Source struct {
-	ApiKey string `json:"api_key"`
-	Owner  string `json:"owner"`
-}
-
-type Params struct {
-	File             string `json:"file"`
-	Message          string `json:"message"`
-	MessageFile      string `json:"message_file"`
-	ReleaseNote      string `json:"release_note"`
-	DistributionKey  string `json:"distribution_key"`
-	DistributionName string `json:"distribution_name"`
-	DisableNotify    bool   `json:"disable_notify"`
-	Visibility       string `json:"visibility"`
-}
-
-type Request struct {
-	Source Source `json:"source"`
-	Params Params `json:"params"`
-}
-
-type MetadataEntry struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
-}
-
-type Response struct {
-	Version  Version         `json:"version"`
-	Metadata []MetadataEntry `json:"metadata"`
-}
 
 func readMessageFromFile(filePath string) (string, error) {
 	content, err := ioutil.ReadFile(filePath)
@@ -52,7 +19,7 @@ func readMessageFromFile(filePath string) (string, error) {
 	return string(content), nil
 }
 
-func dg(request *Request) (*deploygate.Response, error) {
+func dg(request *models.PutRequest) (*deploygate.Response, error) {
 	source, params := request.Source, request.Params
 
 	message := params.Message
@@ -89,7 +56,7 @@ func main() {
 
 	os.Chdir(os.Args[1])
 
-	request := Request{}
+	request := models.PutRequest{}
 	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
 		fmt.Fprintf(os.Stderr, "Fatal: %s\n", err)
 		os.Exit(1)
@@ -106,9 +73,9 @@ func main() {
 
 	results := dgResponse.Results
 
-	response := Response{
-		Version: Version{},
-		Metadata: []MetadataEntry{
+	response := models.PutResponse{
+		Version: models.Version{},
+		Metadata: []models.MetadataEntry{
 			{Name: "name", Value: results.Name},
 			{Name: "package", Value: results.PackageName},
 			{Name: "platform", Value: results.OSName},
