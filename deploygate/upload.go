@@ -11,14 +11,6 @@ import (
 	"path/filepath"
 )
 
-type Client struct {
-	ApiKey string
-}
-
-func NewClient(apiKey string) *Client {
-	return &Client{ApiKey: apiKey}
-}
-
 func (c *Client) Upload(userName, filePath, message, distributionKey, distributionName, releaseNote string, disableNotify bool, visibility string) (*Response, error) {
 	endPointUrl := fmt.Sprintf("https://deploygate.com/api/users/%s/apps", userName)
 
