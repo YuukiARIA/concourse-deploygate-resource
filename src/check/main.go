@@ -2,11 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strconv"
 
 	"github.com/YuukiARIA/concourse-deploygate-resource/deploygate"
+	"github.com/YuukiARIA/concourse-deploygate-resource/logger"
 	"github.com/YuukiARIA/concourse-deploygate-resource/models"
 )
 
@@ -40,14 +40,12 @@ func PerformCheck(request CheckRequest) (*CheckResponse, error) {
 func main() {
 	var request CheckRequest
 	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 
 	response, err := PerformCheck(request)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 	json.NewEncoder(os.Stdout).Encode(response)
 }

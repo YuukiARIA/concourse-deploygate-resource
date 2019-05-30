@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 
 	"github.com/YuukiARIA/concourse-deploygate-resource/deploygate"
+	"github.com/YuukiARIA/concourse-deploygate-resource/logger"
 	"github.com/YuukiARIA/concourse-deploygate-resource/models"
 )
 
@@ -66,21 +66,18 @@ func writeFile(basePath, fileName string, content []byte) error {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Fatal: source directory not given")
-		os.Exit(1)
+		logger.Fatal("Fatal: source directory not given")
 	}
 	basePath := os.Args[1]
 
 	var request GetRequest
 	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
-		fmt.Fprintf(os.Stderr, "Invalid request: %s\n", err)
-		os.Exit(1)
+		logger.Fatalf("Invalid request: %s\n", err)
 	}
 
 	response, err := PerformGet(request, basePath)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		logger.Fatal(err)
 	}
 	json.NewEncoder(os.Stdout).Encode(response)
 }

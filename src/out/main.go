@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strconv"
 
 	"github.com/YuukiARIA/concourse-deploygate-resource/deploygate"
+	"github.com/YuukiARIA/concourse-deploygate-resource/logger"
 	"github.com/YuukiARIA/concourse-deploygate-resource/models"
 )
 
@@ -50,25 +50,21 @@ func dg(request *models.PutRequest) (*deploygate.UploadResponse, error) {
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "Fatal: source directory not given")
-		os.Exit(1)
+		logger.Fatal("Fatal: source directory not given")
 	}
 
 	os.Chdir(os.Args[1])
 
 	request := models.PutRequest{}
 	if err := json.NewDecoder(os.Stdin).Decode(&request); err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal: %s\n", err)
-		os.Exit(1)
+		logger.Fatalf("Fatal: %s\n", err)
 	}
 
 	dgResponse, err := dg(&request)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal: %s\n", err)
-		os.Exit(1)
+		logger.Fatalf("Fatal: %s\n", err)
 	} else if dgResponse.Error {
-		fmt.Fprintf(os.Stderr, "Error: %s (%s)\n", dgResponse.Message, dgResponse.Because)
-		os.Exit(1)
+		logger.Fatalf("Error: %s (%s)\n", dgResponse.Message, dgResponse.Because)
 	}
 
 	results := dgResponse.Results
