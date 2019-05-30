@@ -1,6 +1,7 @@
 # DeployGate Resource
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/YuukiARIA/concourse-deploygate-resource)](https://goreportcard.com/report/github.com/YuukiARIA/concourse-deploygate-resource)
+[![Version](https://img.shields.io/github/tag/YuukiARIA/concourse-deploygate-resource.svg?color=blue)](https://github.com/YuukiARIA/concourse-deploygate-resource/releases)
 
 This is a write-only resource that enables to upload IPA/APK packages to [DeployGate](https://deploygate.com/).
 
