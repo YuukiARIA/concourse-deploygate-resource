@@ -33,15 +33,11 @@ func PerformGet(request GetRequest, basePath string) (*GetResponse, error) {
 
 	app := getAppRes.App
 
-	metadataPath := filepath.Join(basePath, "metadata.json")
-	file, err := os.Create(metadataPath)
+	data, err := json.Marshal(&app)
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-
-	data, _ := json.Marshal(&app)
-	if _, err := file.Write(data); err != nil {
+	if err := writeFile(basePath, "metadata.json", data); err != nil {
 		return nil, err
 	}
 
@@ -52,6 +48,20 @@ func PerformGet(request GetRequest, basePath string) (*GetResponse, error) {
 			Revision:    strconv.Itoa(app.CurrentRevision),
 		},
 	}, nil
+}
+
+func writeFile(basePath, fileName string, content []byte) error {
+	filePath := filepath.Join(basePath, fileName)
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := file.Write(content); err != nil {
+		return err
+	}
+	return nil
 }
 
 func main() {
